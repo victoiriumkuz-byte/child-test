@@ -1,0 +1,1599 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Як мислить твоя дитина — Protocol</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Martian+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --gold: #9a6f3a;
+    --gold-light: #c4973d;
+    --gold-dim: #7a5828;
+    --gold-bg: #f5efe6;
+    --gold-line: rgba(154,111,58,0.2);
+    --ink: #1a1610;
+    --ink-soft: #3d3020;
+    --ink-muted: #7a6a52;
+    --ink-faint: #b8a888;
+    --surface: #fffdf8;
+    --surface-warm: #f9f3e8;
+    --surface-card: #fefcf5;
+    --border: rgba(154,111,58,0.15);
+    --border-soft: rgba(154,111,58,0.08);
+    --ff-serif: 'Playfair Display', Georgia, serif;
+    --ff-mono: 'Martian Mono', monospace;
+    --radius: 4px;
+    --radius-lg: 8px;
+  }
+
+  html { font-size: 16px; }
+
+  body {
+    font-family: var(--ff-mono);
+    background: var(--surface);
+    color: var(--ink);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* GRAIN OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* SCREENS */
+  .screen { display: none; min-height: 100vh; position: relative; z-index: 1; }
+  .screen.active { display: flex; flex-direction: column; }
+
+  /* ─── LANDING ─────────────────────────────────── */
+  #screen-landing {
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1.5rem;
+    text-align: center;
+    background: var(--surface);
+  }
+
+  .landing-eyebrow {
+    font-family: var(--ff-mono);
+    font-size: 0.65rem;
+    font-weight: 400;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 2rem;
+  }
+
+  .landing-title {
+    font-family: var(--ff-serif);
+    font-size: clamp(2.2rem, 5vw, 3.6rem);
+    font-weight: 500;
+    line-height: 1.15;
+    color: var(--ink);
+    margin-bottom: 1.2rem;
+    max-width: 680px;
+  }
+
+  .landing-title em {
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  .landing-subtitle {
+    font-family: var(--ff-mono);
+    font-size: 0.85rem;
+    font-weight: 300;
+    color: var(--ink-muted);
+    max-width: 460px;
+    margin: 0 auto 2.5rem;
+    line-height: 1.8;
+  }
+
+  .landing-meta {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    justify-content: center;
+    margin-bottom: 3rem;
+    flex-wrap: wrap;
+  }
+
+  .landing-meta-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  .landing-meta-num {
+    font-family: var(--ff-serif);
+    font-size: 1.8rem;
+    font-weight: 500;
+    color: var(--gold);
+    line-height: 1;
+  }
+
+  .landing-meta-label {
+    font-family: var(--ff-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  .landing-divider {
+    width: 1px;
+    height: 40px;
+    background: var(--border);
+  }
+
+  .theory-note {
+    display: inline-block;
+    background: var(--gold-bg);
+    border: 1px solid var(--gold-line);
+    border-radius: var(--radius);
+    padding: 0.6rem 1.2rem;
+    font-family: var(--ff-mono);
+    font-size: 0.72rem;
+    color: var(--gold-dim);
+    letter-spacing: 0.05em;
+    margin-bottom: 3rem;
+  }
+
+  /* ACCESS GATE */
+  .access-gate {
+    max-width: 380px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .access-gate-label {
+    font-family: var(--ff-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-bottom: 0.6rem;
+    text-align: left;
+  }
+
+  .access-row {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .input-code {
+    flex: 1;
+    font-family: var(--ff-mono);
+    font-size: 0.9rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.75rem 1rem;
+    background: var(--surface-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .input-code:focus { border-color: var(--gold); }
+  .input-code::placeholder { color: var(--ink-faint); letter-spacing: 0.12em; }
+
+  .btn-primary {
+    font-family: var(--ff-mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.75rem 1.5rem;
+    background: var(--gold);
+    color: var(--surface);
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    white-space: nowrap;
+  }
+
+  .btn-primary:hover { background: var(--gold-light); }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-primary:disabled { background: var(--ink-faint); cursor: not-allowed; }
+
+  .btn-ghost {
+    font-family: var(--ff-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.75rem 1.5rem;
+    background: transparent;
+    color: var(--ink-muted);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+
+  .access-error {
+    font-size: 0.72rem;
+    color: #c0392b;
+    margin-top: 0.5rem;
+    text-align: left;
+    display: none;
+  }
+
+  .access-demo-note {
+    font-size: 0.68rem;
+    color: var(--ink-faint);
+    margin-top: 0.8rem;
+    text-align: center;
+  }
+
+  /* ─── CHILD INFO ───────────────────────────────── */
+  #screen-child-info {
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1.5rem;
+  }
+
+  .form-card {
+    max-width: 520px;
+    width: 100%;
+    background: var(--surface-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 2.5rem;
+  }
+
+  .form-card-eyebrow {
+    font-size: 0.65rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.5rem;
+  }
+
+  .form-card-title {
+    font-family: var(--ff-serif);
+    font-size: 1.7rem;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 0.5rem;
+    line-height: 1.25;
+  }
+
+  .form-card-desc {
+    font-size: 0.78rem;
+    color: var(--ink-muted);
+    line-height: 1.7;
+    margin-bottom: 2rem;
+    font-weight: 300;
+  }
+
+  .field-group { margin-bottom: 1.5rem; }
+
+  .field-label {
+    display: block;
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-bottom: 0.5rem;
+  }
+
+  .field-input {
+    width: 100%;
+    font-family: var(--ff-mono);
+    font-size: 0.9rem;
+    padding: 0.75rem 1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .field-input:focus { border-color: var(--gold); }
+
+  .age-grid {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    gap: 0.4rem;
+  }
+
+  .age-btn {
+    aspect-ratio: 1;
+    font-family: var(--ff-mono);
+    font-size: 0.8rem;
+    font-weight: 400;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--ink-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .age-btn:hover { border-color: var(--gold); color: var(--gold); }
+  .age-btn.selected { background: var(--gold); border-color: var(--gold); color: var(--surface); }
+
+  .gender-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+
+  .gender-btn {
+    padding: 0.7rem;
+    font-family: var(--ff-mono);
+    font-size: 0.8rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--ink-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+  }
+
+  .gender-btn:hover { border-color: var(--gold); color: var(--gold); }
+  .gender-btn.selected { background: var(--gold); border-color: var(--gold); color: var(--surface); }
+
+  /* ─── QUIZ ─────────────────────────────────────── */
+  #screen-quiz {
+    min-height: 100vh;
+  }
+
+  .quiz-header {
+    position: sticky;
+    top: 0;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border-soft);
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 10;
+  }
+
+  .quiz-logo {
+    font-family: var(--ff-serif);
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--ink);
+    letter-spacing: 0.02em;
+  }
+
+  .quiz-logo span { color: var(--gold); }
+
+  .quiz-progress-wrap {
+    flex: 1;
+    max-width: 400px;
+    margin: 0 2rem;
+  }
+
+  .quiz-progress-bar {
+    height: 2px;
+    background: var(--border-soft);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .quiz-progress-fill {
+    height: 100%;
+    background: var(--gold);
+    border-radius: 2px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  .quiz-progress-label {
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    color: var(--ink-faint);
+    text-align: right;
+    margin-top: 0.3rem;
+  }
+
+  .quiz-body {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+  }
+
+  .question-category {
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.6rem;
+  }
+
+  .question-text {
+    font-family: var(--ff-serif);
+    font-size: clamp(1.3rem, 3vw, 1.75rem);
+    font-weight: 400;
+    line-height: 1.4;
+    color: var(--ink);
+    margin-bottom: 0.8rem;
+    max-width: 580px;
+  }
+
+  .question-context {
+    font-size: 0.75rem;
+    color: var(--ink-muted);
+    font-weight: 300;
+    margin-bottom: 2.5rem;
+    font-style: italic;
+  }
+
+  .scale-wrap {
+    margin-bottom: 3rem;
+  }
+
+  .scale-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.8rem;
+  }
+
+  .scale-label-text {
+    font-size: 0.68rem;
+    color: var(--ink-faint);
+    font-weight: 300;
+    letter-spacing: 0.04em;
+    max-width: 120px;
+  }
+
+  .scale-label-text:last-child { text-align: right; }
+
+  .scale-options {
+    display: flex;
+    gap: 0.6rem;
+    justify-content: space-between;
+  }
+
+  .scale-option {
+    flex: 1;
+    aspect-ratio: 1;
+    max-width: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+    background: var(--surface-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: var(--ff-serif);
+    font-size: 1.3rem;
+    font-weight: 500;
+    color: var(--ink-muted);
+  }
+
+  .scale-option:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+    transform: translateY(-2px);
+  }
+
+  .scale-option.selected {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: var(--surface);
+    transform: translateY(-2px);
+  }
+
+  .scale-option-label {
+    font-family: var(--ff-mono);
+    font-size: 0.5rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.7;
+    line-height: 1.1;
+    text-align: center;
+  }
+
+  .quiz-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-soft);
+  }
+
+  .question-counter {
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: var(--ink-faint);
+  }
+
+  /* SECTION BREAK */
+  .section-break {
+    background: var(--gold-bg);
+    border-top: 1px solid var(--gold-line);
+    border-bottom: 1px solid var(--gold-line);
+    padding: 2rem;
+    margin: 0 -2rem 2.5rem;
+    text-align: center;
+  }
+
+  .section-break-num {
+    font-family: var(--ff-serif);
+    font-size: 2.5rem;
+    font-weight: 500;
+    color: var(--gold);
+    line-height: 1;
+    margin-bottom: 0.3rem;
+  }
+
+  .section-break-name {
+    font-size: 0.65rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold-dim);
+  }
+
+  /* ─── LOADING ──────────────────────────────────── */
+  #screen-loading {
+    align-items: center;
+    justify-content: center;
+    background: var(--surface);
+    text-align: center;
+    padding: 3rem;
+  }
+
+  .loading-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 2rem;
+    position: relative;
+  }
+
+  .loading-ring {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    border-top-color: var(--gold);
+    animation: spin 1.2s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-title {
+    font-family: var(--ff-serif);
+    font-size: 1.4rem;
+    font-weight: 400;
+    color: var(--ink);
+    margin-bottom: 0.5rem;
+  }
+
+  .loading-status {
+    font-size: 0.72rem;
+    color: var(--ink-muted);
+    font-weight: 300;
+    letter-spacing: 0.05em;
+    animation: pulse-text 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-text {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+  }
+
+  .loading-steps {
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-width: 300px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .loading-step {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.7rem;
+    color: var(--ink-faint);
+    text-align: left;
+    opacity: 0;
+    transition: opacity 0.5s;
+  }
+
+  .loading-step.visible { opacity: 1; }
+  .loading-step.done { color: var(--gold); }
+
+  .step-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--border);
+    flex-shrink: 0;
+    transition: background 0.3s;
+  }
+
+  .loading-step.visible .step-dot { background: var(--ink-faint); }
+  .loading-step.done .step-dot { background: var(--gold); }
+
+  /* ─── RESULT ───────────────────────────────────── */
+  #screen-result {
+    background: var(--surface);
+    padding-bottom: 4rem;
+  }
+
+  .result-hero {
+    background: var(--gold-bg);
+    border-bottom: 1px solid var(--gold-line);
+    padding: 3rem 2rem 2.5rem;
+    text-align: center;
+  }
+
+  .result-eyebrow {
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1rem;
+  }
+
+  .result-child-name {
+    font-family: var(--ff-serif);
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 0.3rem;
+  }
+
+  .result-archetype-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--gold);
+    color: var(--surface);
+    font-family: var(--ff-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.4rem 1rem;
+    border-radius: 2px;
+    margin-bottom: 1.5rem;
+  }
+
+  .result-archetype-symbol {
+    font-size: 0.85rem;
+  }
+
+  .intel-bars {
+    max-width: 560px;
+    margin: 0 auto 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .intel-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .intel-bar-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    color: var(--gold-dim);
+    width: 80px;
+    flex-shrink: 0;
+    text-align: right;
+  }
+
+  .intel-bar-track {
+    flex: 1;
+    height: 4px;
+    background: rgba(154,111,58,0.15);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .intel-bar-fill {
+    height: 100%;
+    background: var(--gold);
+    border-radius: 2px;
+    transform-origin: left;
+    transform: scaleX(0);
+    transition: transform 0.8s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  .intel-bar-pct {
+    font-family: var(--ff-mono);
+    font-size: 0.62rem;
+    color: var(--gold);
+    width: 32px;
+    flex-shrink: 0;
+  }
+
+  .result-body {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 2rem 2rem 0;
+  }
+
+  .result-section {
+    padding: 2.5rem 0;
+    border-bottom: 1px solid var(--border-soft);
+  }
+
+  .result-section:last-child { border-bottom: none; }
+
+  .result-section-num {
+    font-family: var(--ff-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    color: var(--gold);
+    margin-bottom: 0.3rem;
+  }
+
+  .result-section-title {
+    font-family: var(--ff-serif);
+    font-size: 1.35rem;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 1.2rem;
+    line-height: 1.3;
+  }
+
+  .result-section-body {
+    font-family: var(--ff-mono);
+    font-size: 0.82rem;
+    font-weight: 300;
+    line-height: 1.9;
+    color: var(--ink-soft);
+  }
+
+  .result-section-body p + p { margin-top: 0.8em; }
+
+  .highlight-box {
+    background: var(--gold-bg);
+    border-left: 2px solid var(--gold);
+    padding: 1rem 1.25rem;
+    margin: 1.2rem 0;
+    border-radius: 0 var(--radius) var(--radius) 0;
+  }
+
+  .highlight-box p {
+    font-size: 0.8rem;
+    line-height: 1.7;
+    color: var(--gold-dim);
+    font-weight: 400;
+  }
+
+  .actions-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    margin-top: 0.5rem;
+  }
+
+  .action-item {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    padding: 1rem 1.25rem;
+    background: var(--surface-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+  }
+
+  .action-num {
+    font-family: var(--ff-serif);
+    font-size: 1.2rem;
+    color: var(--gold);
+    font-weight: 500;
+    line-height: 1;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+
+  .action-text {
+    font-size: 0.8rem;
+    line-height: 1.7;
+    color: var(--ink-soft);
+    font-weight: 300;
+  }
+
+  .result-footer {
+    text-align: center;
+    padding: 3rem 2rem 1rem;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .result-footer-note {
+    font-size: 0.65rem;
+    color: var(--ink-faint);
+    letter-spacing: 0.05em;
+    line-height: 1.8;
+    font-weight: 300;
+  }
+
+  .btn-download {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--ff-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.8rem 1.8rem;
+    border: 1px solid var(--gold);
+    border-radius: var(--radius);
+    color: var(--gold);
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 1.5rem;
+  }
+
+  .btn-download:hover { background: var(--gold); color: var(--surface); }
+
+  .error-banner {
+    background: #fdf0f0;
+    border: 1px solid rgba(192,57,43,0.2);
+    border-radius: var(--radius);
+    padding: 0.8rem 1rem;
+    font-size: 0.75rem;
+    color: #c0392b;
+    margin-top: 1rem;
+    display: none;
+  }
+
+  /* FADE ANIM */
+  .fade-in {
+    animation: fadeIn 0.5s ease forwards;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* STREAMING TEXT */
+  .streaming-cursor::after {
+    content: '|';
+    animation: blink 0.8s steps(1) infinite;
+    color: var(--gold);
+  }
+
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .quiz-header { padding: 0.75rem 1rem; }
+    .quiz-body { padding: 2.5rem 1rem; }
+    .scale-options { gap: 0.35rem; }
+    .scale-option { font-size: 1.1rem; }
+    .age-grid { grid-template-columns: repeat(5, 1fr); }
+    .intel-bar-label { width: 60px; font-size: 0.6rem; }
+    .result-body { padding: 1.5rem 1rem 0; }
+    .result-hero { padding: 2rem 1rem 1.5rem; }
+    .section-break { margin: 0 -1rem 2rem; }
+  }
+
+  /* PRINT */
+  @media print {
+    .quiz-header, .quiz-nav, .btn-download { display: none; }
+    .screen { display: block !important; }
+    #screen-landing, #screen-child-info, #screen-quiz, #screen-loading { display: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══ SCREEN: LANDING ═══════════════════════════════════════════════════ -->
+<section class="screen active" id="screen-landing">
+  <div style="max-width:680px;width:100%;margin:auto;display:flex;flex-direction:column;align-items:center;">
+    <p class="landing-eyebrow">Protocol · Дитячий аналіз</p>
+
+    <h1 class="landing-title">
+      Як мислить<br>і вчиться<br><em>твоя дитина</em>
+    </h1>
+
+    <p class="landing-subtitle">
+      Мама відповідає на конкретні запитання про поведінку дитини.
+      AI-аналіз на основі теорії множинного інтелекту Говарда Гарднера.
+    </p>
+
+    <div class="landing-meta">
+      <div class="landing-meta-item">
+        <span class="landing-meta-num">44</span>
+        <span class="landing-meta-label">питання</span>
+      </div>
+      <div class="landing-divider"></div>
+      <div class="landing-meta-item">
+        <span class="landing-meta-num">10</span>
+        <span class="landing-meta-label">хвилин</span>
+      </div>
+      <div class="landing-divider"></div>
+      <div class="landing-meta-item">
+        <span class="landing-meta-num">7</span>
+        <span class="landing-meta-label">розділів аналізу</span>
+      </div>
+      <div class="landing-divider"></div>
+      <div class="landing-meta-item">
+        <span class="landing-meta-num">6–14</span>
+        <span class="landing-meta-label">вік дитини</span>
+      </div>
+    </div>
+
+    <span class="theory-note">Теорія множинного інтелекту · Howard Gardner · 8 типів</span>
+
+    <div class="access-gate">
+      <p class="access-gate-label">Код доступу</p>
+      <div class="access-row">
+        <input class="input-code" type="text" id="access-code-input" placeholder="XXXX-XXXX" maxlength="9">
+        <button class="btn-primary" onclick="checkAccess()">Увійти</button>
+      </div>
+      <p class="access-error" id="access-error">Невірний код доступу. Спробуй ще раз.</p>
+      <p class="access-demo-note">Демо-код: <strong>DEMO-2024</strong></p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SCREEN: CHILD INFO ════════════════════════════════════════════════ -->
+<section class="screen" id="screen-child-info">
+  <div style="max-width:560px;width:100%;margin:auto;padding:2rem 1.5rem;">
+    <div class="form-card">
+      <p class="form-card-eyebrow">Крок 1 з 3 · Про дитину</p>
+      <h2 class="form-card-title">Розкажи про свою дитину</h2>
+      <p class="form-card-desc">Ця інформація допоможе AI врахувати вік та скласти персональний аналіз.</p>
+
+      <div class="field-group">
+        <label class="field-label" for="child-name">Ім'я дитини</label>
+        <input class="field-input" type="text" id="child-name" placeholder="Наприклад, Соня або Марко">
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Вік (6–14 років)</label>
+        <div class="age-grid" id="age-grid">
+          <!-- Generated by JS -->
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Стать</label>
+        <div class="gender-row">
+          <button class="gender-btn" data-gender="girl" onclick="selectGender(this)">Дівчинка</button>
+          <button class="gender-btn" data-gender="boy" onclick="selectGender(this)">Хлопчик</button>
+        </div>
+      </div>
+
+      <button class="btn-primary" style="width:100%;margin-top:0.5rem;" onclick="startQuiz()" id="start-btn">
+        Розпочати тест →
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SCREEN: QUIZ ══════════════════════════════════════════════════════ -->
+<section class="screen" id="screen-quiz">
+  <header class="quiz-header">
+    <div class="quiz-logo">Protocol <span>·</span> Дитина</div>
+    <div class="quiz-progress-wrap">
+      <div class="quiz-progress-bar">
+        <div class="quiz-progress-fill" id="progress-fill"></div>
+      </div>
+      <div class="quiz-progress-label" id="progress-label">1 / 44</div>
+    </div>
+    <div style="font-size:0.65rem;color:var(--ink-faint);letter-spacing:0.08em;" id="header-child-name">—</div>
+  </header>
+
+  <div class="quiz-body" id="quiz-body">
+    <!-- Question renders here -->
+  </div>
+</section>
+
+<!-- ═══ SCREEN: LOADING ═══════════════════════════════════════════════════ -->
+<section class="screen" id="screen-loading">
+  <div class="loading-icon">
+    <div class="loading-ring"></div>
+  </div>
+  <h2 class="loading-title">Аналізую відповіді</h2>
+  <p class="loading-status" id="loading-status">Обробка даних...</p>
+  <div class="loading-steps">
+    <div class="loading-step" id="step-1"><div class="step-dot"></div>Визначення типів інтелекту</div>
+    <div class="loading-step" id="step-2"><div class="step-dot"></div>Виявлення домінуючих патернів</div>
+    <div class="loading-step" id="step-3"><div class="step-dot"></div>Формування архетипу</div>
+    <div class="loading-step" id="step-4"><div class="step-dot"></div>Генерація персонального аналізу</div>
+    <div class="loading-step" id="step-5"><div class="step-dot"></div>Підбір конкретних рекомендацій</div>
+  </div>
+</section>
+
+<!-- ═══ SCREEN: RESULT ════════════════════════════════════════════════════ -->
+<section class="screen" id="screen-result">
+  <div class="result-hero">
+    <p class="result-eyebrow">Аналіз готовий · Protocol</p>
+    <h1 class="result-child-name" id="result-name">—</h1>
+    <div style="margin-bottom:0.5rem;">
+      <span class="result-archetype-badge" id="archetype-badge">
+        <span class="result-archetype-symbol" id="archetype-symbol">◈</span>
+        <span id="archetype-name">Архетип</span>
+      </span>
+    </div>
+    <p style="font-size:0.75rem;color:var(--gold-dim);font-weight:300;margin-bottom:1.5rem;font-family:var(--ff-mono);" id="archetype-desc">—</p>
+    <div class="intel-bars" id="intel-bars"></div>
+  </div>
+
+  <div class="result-body" id="result-body">
+    <!-- AI analysis sections render here -->
+    <div style="padding:3rem 0;text-align:center;">
+      <div style="width:40px;height:40px;border-radius:50%;border:1.5px solid var(--border);border-top-color:var(--gold);animation:spin 1s linear infinite;margin:0 auto 1rem;"></div>
+      <p style="font-size:0.75rem;color:var(--ink-faint);">Завантаження аналізу...</p>
+    </div>
+  </div>
+
+  <div class="result-footer">
+    <button class="btn-download" onclick="window.print()">
+      ↓ Зберегти PDF
+    </button>
+    <p class="result-footer-note" style="margin-top:1.5rem;">
+      Аналіз базується на теорії множинного інтелекту Howard Gardner.<br>
+      Результати — орієнтир для розвитку, а не остаточний діагноз.<br>
+      Protocol · Дитячий аналіз · 2024
+    </p>
+  </div>
+</section>
+
+<script>
+// ═══ DATA: QUESTIONS ══════════════════════════════════════════════════════
+
+const INTELLIGENCE_TYPES = [
+  { id: 'linguistic', name: 'Лінгвістичний', short: 'Лінгв.' },
+  { id: 'logical', name: 'Логіко-математичний', short: 'Логіко-матем.' },
+  { id: 'spatial', name: 'Просторовий', short: 'Просторовий' },
+  { id: 'musical', name: 'Музичний', short: 'Музичний' },
+  { id: 'bodily', name: 'Тілесно-кінестетичний', short: 'Кінестетичний' },
+  { id: 'interpersonal', name: 'Міжособистісний', short: 'Міжособистісний' },
+  { id: 'intrapersonal', name: 'Внутрішньоособистісний', short: 'Внутрішньоособистісний' },
+  { id: 'naturalistic', name: 'Натуралістичний', short: 'Натуралістичний' },
+];
+
+const QUESTIONS = [
+  // ЛІНГВІСТИЧНИЙ (5-6 питань)
+  { type: 'linguistic', text: 'Коли дитина не може пояснити щось одним словом — вона добирає ще одне, і ще, поки не знайде точне', context: 'Зверніть увагу на розмови вдома та у школі' },
+  { type: 'linguistic', text: 'Дитина із задоволенням читає вголос — навіть якщо ніхто не просив' },
+  { type: 'linguistic', text: 'Після фільму чи книжки вона переказує деталі, які всі інші вже забули' },
+  { type: 'linguistic', text: 'Вона вигадує персонажів, казки або власні правила гри зі складними назвами' },
+  { type: 'linguistic', text: 'Дитина любить гратись зі словами — каламбури, рими, лічилки', context: 'Не обов\'язково серйозно — навіть у жарт' },
+
+  // ЛОГІКО-МАТЕМАТИЧНИЙ (5-6 питань)
+  { type: 'logical', text: 'Коли щось зламалось вдома — дитина перша біжить розібратись, як це працює' },
+  { type: 'logical', text: 'Вона ставить запитання типу "чому так, а не інакше?" — і не заспокоюється, поки не отримає справжнє пояснення' },
+  { type: 'logical', text: 'Їй цікаво рахувати, класифікувати, порівнювати — навіть без завдання від дорослих', context: 'Наприклад, рахує машини певного кольору або сортує карти' },
+  { type: 'logical', text: 'Дитина помічає закономірності там, де інші не бачать нічого особливого' },
+  { type: 'logical', text: 'Вона любить логічні ігри, пазли або завдання "знайди відмінності"', context: 'Кросворди, шахи, Sudoku, будь-які стратегії' },
+  { type: 'logical', text: 'Коли щось несправедливо або нелогічно — дитина одразу це помічає і каже' },
+
+  // ПРОСТОРОВИЙ (5 питань)
+  { type: 'spatial', text: 'Дитина добре орієнтується на новому місці — рідко губиться' },
+  { type: 'spatial', text: 'Їй легше малювати, ніж розповідати — вона пояснює через схеми або малюнки', context: 'Навіть схематично, від руки' },
+  { type: 'spatial', text: 'Вона будує складні конструкції — з лего, кубиків, піску — і уявляє результат наперед' },
+  { type: 'spatial', text: 'Дитина "бачить" кінець пазла ще до того, як зберуть половину' },
+  { type: 'spatial', text: 'Їй подобається розбирати речі і збирати назад — щоб побачити, що всередині' },
+
+  // МУЗИЧНИЙ (5 питань)
+  { type: 'musical', text: 'Дитина почуває ритм і рухається або відбиває такт, коли чує музику', context: 'Будь-яка музика — фонова, у магазині, в рекламі' },
+  { type: 'musical', text: 'Вона запам\'ятовує мелодії з першого-другого прослуховування' },
+  { type: 'musical', text: 'Коли дитина сумує або радіє — вона часто співає або мугикає собі під ніс' },
+  { type: 'musical', text: 'Фоновий шум заважає їй зосередитись — вона краще читає або робить уроки в тиші', context: 'Або навпаки — потребує певного звукового фону' },
+  { type: 'musical', text: 'Вона сама вигадує мелодії або слова до пісень' },
+
+  // ТІЛЕСНО-КІНЕСТЕТИЧНИЙ (5-6 питань)
+  { type: 'bodily', text: 'Під час пояснення чогось дитина активно жестикулює або показує тілом' },
+  { type: 'bodily', text: 'Їй важко сидіти тихо тривалий час — вона постійно рухається або смикає щось у руках' },
+  { type: 'bodily', text: 'Вона навчається краще через практику: "дай спробую сам" — її головна фраза', context: 'Не через пояснення, а через дію' },
+  { type: 'bodily', text: 'Дитина добре координована — рідко спотикається, швидко освоює нові фізичні навички' },
+  { type: 'bodily', text: 'Їй подобається ліпити, майструвати, щось робити руками' },
+
+  // МІЖОСОБИСТІСНИЙ (5 питань)
+  { type: 'interpersonal', text: 'Дитина відчуває, коли хтось сумує або засмучений — навіть якщо людина нічого не каже', context: 'Навіть малознайомі люди або персонажі у фільмі' },
+  { type: 'interpersonal', text: 'Вона природньо бере на себе роль лідера у грі або групі' },
+  { type: 'interpersonal', text: 'Їй важливо, що думають про неї однолітки — це впливає на її настрій' },
+  { type: 'interpersonal', text: 'Дитина добре вирішує конфлікти між іншими дітьми — і до неї звертаються за порадою' },
+  { type: 'interpersonal', text: 'Вона заряджається енергією від спілкування — після часу з друзями їй краще, ніж до' },
+
+  // ВНУТРІШНЬООСОБИСТІСНИЙ (5 питань)
+  { type: 'intrapersonal', text: 'Дитина може довго грати або займатись чимось сама — і не нудьгує' },
+  { type: 'intrapersonal', text: 'Вона чітко знає, що їй подобається, а що ні — і не соромиться це казати' },
+  { type: 'intrapersonal', text: 'Після конфлікту або складної ситуації вона йде подумати — а потім повертається з висновками' },
+  { type: 'intrapersonal', text: 'У неї є власна точка зору, яка не завжди збігається з думкою більшості', context: 'Вона може відстоювати її спокійно' },
+  { type: 'intrapersonal', text: 'Дитина добре розуміє свої емоції — може назвати, що саме відчуває і чому' },
+
+  // НАТУРАЛІСТИЧНИЙ (5 питань)
+  { type: 'naturalistic', text: 'На прогулянці дитина звертає увагу на комах, рослини, хмари — те, що інші не помічають' },
+  { type: 'naturalistic', text: 'Вона категоризує природні об\'єкти: "це жук, а не павук, бо у нього шість ніг"', context: 'Навіть без спеціального навчання' },
+  { type: 'naturalistic', text: 'Їй подобається доглядати за рослинами, тваринами або збирати колекції (каміння, листя, мушлі)' },
+  { type: 'naturalistic', text: 'Вона помічає зміни в природі — погоди, пір року, поведінки тварин' },
+  { type: 'naturalistic', text: 'Дитина схвильована або засмучена, якщо бачить, що природі завдають шкоди' },
+];
+
+const ARCHETYPES = [
+  { id: 'researcher', name: 'Дослідник', symbol: '◉', dominant: ['logical', 'naturalistic'], desc: 'Рухається запитаннями. Зупиняється лише тоді, коли розібрався до кінця.' },
+  { id: 'creator', name: 'Творець', symbol: '◈', dominant: ['spatial', 'musical'], desc: 'Бачить світ як матеріал для творення. Думає образами та формами.' },
+  { id: 'builder', name: 'Будівник', symbol: '◧', dominant: ['bodily', 'spatial'], desc: 'Вчиться через дію. Руки думають раніше за голову.' },
+  { id: 'communicator', name: 'Комунікатор', symbol: '◎', dominant: ['interpersonal', 'linguistic'], desc: 'Читає людей як книги. Слова — його природня стихія.' },
+  { id: 'philosopher', name: 'Мислитель', symbol: '◫', dominant: ['intrapersonal', 'logical'], desc: 'Занурюється в глибину. Власний внутрішній світ — найцікавіше місце.' },
+  { id: 'naturalist', name: 'Натураліст', symbol: '◬', dominant: ['naturalistic', 'bodily'], desc: 'Живе у потоці природи. Відчуває зв\'язки там, де інші бачать хаос.' },
+  { id: 'maestro', name: 'Маестро', symbol: '♦', dominant: ['musical', 'intrapersonal'], desc: 'Внутрішній ритм — його мова. Виражає те, що не можна сказати словами.' },
+  { id: 'storyteller', name: 'Оповідач', symbol: '◉', dominant: ['linguistic', 'interpersonal'], desc: 'Перетворює досвід на історії. Запам\'ятовує деталі, які зачіпають.' },
+];
+
+// ═══ STATE ════════════════════════════════════════════════════════════════
+
+const state = {
+  childName: '',
+  childAge: null,
+  childGender: null,
+  answers: {},
+  currentQ: 0,
+  scores: {},
+  archetype: null,
+};
+
+// ═══ INIT ═════════════════════════════════════════════════════════════════
+
+function init() {
+  // Build age grid
+  const ageGrid = document.getElementById('age-grid');
+  for (let a = 6; a <= 14; a++) {
+    const btn = document.createElement('button');
+    btn.className = 'age-btn';
+    btn.textContent = a;
+    btn.onclick = () => selectAge(btn, a);
+    ageGrid.appendChild(btn);
+  }
+
+  // Auto-format access code
+  const input = document.getElementById('access-code-input');
+  input.addEventListener('input', (e) => {
+    let v = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+    if (v.length > 4) v = v.slice(0, 4) + '-' + v.slice(4, 8);
+    e.target.value = v;
+  });
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') checkAccess();
+  });
+}
+
+// ═══ ACCESS ═══════════════════════════════════════════════════════════════
+
+const VALID_CODES = ['DEMO-2024', 'PROT-2024', 'CHILD-001', 'TEST-0000'];
+
+function checkAccess() {
+  const code = document.getElementById('access-code-input').value.trim();
+  const err = document.getElementById('access-error');
+  if (VALID_CODES.includes(code)) {
+    err.style.display = 'none';
+    showScreen('child-info');
+  } else {
+    err.style.display = 'block';
+    document.getElementById('access-code-input').style.borderColor = '#c0392b';
+    setTimeout(() => {
+      document.getElementById('access-code-input').style.borderColor = '';
+    }, 1500);
+  }
+}
+
+function selectAge(btn, age) {
+  document.querySelectorAll('.age-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  state.childAge = age;
+}
+
+function selectGender(btn) {
+  document.querySelectorAll('.gender-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  state.childGender = btn.dataset.gender;
+}
+
+function startQuiz() {
+  const name = document.getElementById('child-name').value.trim();
+  if (!name || !state.childAge || !state.childGender) {
+    alert("Будь ласка, вкажи ім'я, вік та стать дитини.");
+    return;
+  }
+  state.childName = name;
+  document.getElementById('header-child-name').textContent = name + ', ' + state.childAge + ' р.';
+  state.currentQ = 0;
+  showScreen('quiz');
+  renderQuestion();
+}
+
+// ═══ QUIZ LOGIC ═══════════════════════════════════════════════════════════
+
+function renderQuestion() {
+  const q = QUESTIONS[state.currentQ];
+  const total = QUESTIONS.length;
+  const pct = (state.currentQ / total) * 100;
+
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = (state.currentQ + 1) + ' / ' + total;
+
+  // Section break every ~5-6 questions at new type
+  const prevType = state.currentQ > 0 ? QUESTIONS[state.currentQ - 1].type : null;
+  const showBreak = state.currentQ > 0 && q.type !== prevType;
+
+  const typeInfo = INTELLIGENCE_TYPES.find(t => t.id === q.type);
+  const typeIndex = INTELLIGENCE_TYPES.findIndex(t => t.id === q.type) + 1;
+
+  const scaleLabels = [
+    ['1', 'Зовсім не схоже'],
+    ['2', 'Рідко буває'],
+    ['3', 'Іноді'],
+    ['4', 'Часто'],
+    ['5', 'Дуже схоже'],
+  ];
+
+  const currentAnswer = state.answers[state.currentQ];
+
+  const sectionBreakHTML = showBreak ? `
+    <div class="section-break">
+      <div class="section-break-num">${String(typeIndex).padStart(2,'0')}</div>
+      <div class="section-break-name">${typeInfo.name} інтелект</div>
+    </div>` : '';
+
+  const scaleHTML = scaleLabels.map(([val, label]) => `
+    <button class="scale-option ${currentAnswer == val ? 'selected' : ''}"
+            onclick="selectAnswer(${val})" data-val="${val}">
+      ${val}
+      <span class="scale-option-label">${label}</span>
+    </button>`).join('');
+
+  const body = document.getElementById('quiz-body');
+  body.innerHTML = `
+    ${sectionBreakHTML}
+    <div class="fade-in">
+      <p class="question-category">${typeInfo.name} · ${String(state.currentQ + 1).padStart(2,'0')} / ${total}</p>
+      <h2 class="question-text">${q.text}</h2>
+      ${q.context ? `<p class="question-context">${q.context}</p>` : ''}
+      <div class="scale-wrap">
+        <div class="scale-labels">
+          <span class="scale-label-text">Зовсім не схоже на мою дитину</span>
+          <span class="scale-label-text">Дуже схоже — це саме вона</span>
+        </div>
+        <div class="scale-options">${scaleHTML}</div>
+      </div>
+      <div class="quiz-nav">
+        <button class="btn-ghost" onclick="prevQuestion()" ${state.currentQ === 0 ? 'disabled style="opacity:0.3;"' : ''}>← Назад</button>
+        <span class="question-counter">${state.currentQ + 1} з ${total}</span>
+        <button class="btn-primary" id="next-btn" onclick="nextQuestion()" ${currentAnswer ? '' : 'disabled style="opacity:0.5;cursor:not-allowed;"'}>
+          ${state.currentQ === total - 1 ? 'Завершити →' : 'Далі →'}
+        </button>
+      </div>
+    </div>`;
+}
+
+function selectAnswer(val) {
+  state.answers[state.currentQ] = val;
+  document.querySelectorAll('.scale-option').forEach(btn => {
+    btn.classList.toggle('selected', parseInt(btn.dataset.val) === val);
+  });
+  const nextBtn = document.getElementById('next-btn');
+  if (nextBtn) {
+    nextBtn.disabled = false;
+    nextBtn.style.opacity = '1';
+    nextBtn.style.cursor = 'pointer';
+  }
+}
+
+function nextQuestion() {
+  if (!state.answers[state.currentQ]) return;
+  if (state.currentQ < QUESTIONS.length - 1) {
+    state.currentQ++;
+    renderQuestion();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } else {
+    finishQuiz();
+  }
+}
+
+function prevQuestion() {
+  if (state.currentQ > 0) {
+    state.currentQ--;
+    renderQuestion();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+// ═══ SCORING ══════════════════════════════════════════════════════════════
+
+function computeScores() {
+  const counts = {};
+  const sums = {};
+  INTELLIGENCE_TYPES.forEach(t => { counts[t.id] = 0; sums[t.id] = 0; });
+  QUESTIONS.forEach((q, i) => {
+    const ans = state.answers[i] || 3;
+    sums[q.type] += ans;
+    counts[q.type]++;
+  });
+  const scores = {};
+  INTELLIGENCE_TYPES.forEach(t => {
+    scores[t.id] = counts[t.id] ? Math.round((sums[t.id] / (counts[t.id] * 5)) * 100) : 0;
+  });
+  return scores;
+}
+
+function determineArchetype(scores) {
+  const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+  const top1 = sorted[0][0];
+  const top2 = sorted[1][0];
+  let best = ARCHETYPES[0];
+  let bestScore = -1;
+  for (const arch of ARCHETYPES) {
+    const s = (scores[arch.dominant[0]] || 0) + (scores[arch.dominant[1]] || 0);
+    if (s > bestScore) { bestScore = s; best = arch; }
+  }
+  return best;
+}
+
+// ═══ RESULT ═══════════════════════════════════════════════════════════════
+
+async function finishQuiz() {
+  state.scores = computeScores();
+  state.archetype = determineArchetype(state.scores);
+
+  showScreen('loading');
+  animateLoadingSteps();
+
+  // Build result page while loading
+  setupResultHero();
+
+  try {
+    const analysis = await callClaudeAPI();
+    renderAnalysis(analysis);
+  } catch (err) {
+    console.error(err);
+    renderFallbackAnalysis();
+  }
+
+  showScreen('result');
+  animateIntelBars();
+}
+
+function animateLoadingSteps() {
+  const steps = ['step-1','step-2','step-3','step-4','step-5'];
+  const messages = ['Визначаю типи інтелекту...','Аналізую патерни поведінки...','Формую архетип дитини...','Генерую персональний аналіз...','Підбираю рекомендації...'];
+  steps.forEach((id, i) => {
+    setTimeout(() => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.classList.add('visible');
+        document.getElementById('loading-status').textContent = messages[i];
+        if (i > 0) {
+          const prev = document.getElementById(steps[i-1]);
+          if (prev) prev.classList.add('done');
+        }
+      }
+    }, i * 1200);
+  });
+}
+
+function setupResultHero() {
+  const pronoun = state.childGender === 'girl' ? 'її' : 'його';
+  document.getElementById('result-name').textContent = state.childName + ', ' + state.childAge + ' р.';
+  document.getElementById('archetype-symbol').textContent = state.archetype.symbol;
+  document.getElementById('archetype-name').textContent = state.archetype.name;
+  document.getElementById('archetype-desc').textContent = state.archetype.desc;
+
+  // Intel bars
+  const sorted = INTELLIGENCE_TYPES.map(t => ({ ...t, score: state.scores[t.id] || 0 }))
+    .sort((a, b) => b.score - a.score);
+
+  const barsContainer = document.getElementById('intel-bars');
+  barsContainer.innerHTML = sorted.map(t => `
+    <div class="intel-bar-row">
+      <span class="intel-bar-label">${t.short}</span>
+      <div class="intel-bar-track">
+        <div class="intel-bar-fill" data-pct="${t.score / 100}" style="transform:scaleX(0)"></div>
+      </div>
+      <span class="intel-bar-pct">${t.score}%</span>
+    </div>`).join('');
+}
+
+function animateIntelBars() {
+  document.querySelectorAll('.intel-bar-fill').forEach((el, i) => {
+    setTimeout(() => {
+      el.style.transform = `scaleX(${el.dataset.pct})`;
+    }, 300 + i * 80);
+  });
+}
+
+// ═══ CLAUDE API CALL ══════════════════════════════════════════════════════
+
+async function callClaudeAPI() {
+  const sortedScores = INTELLIGENCE_TYPES.map(t => ({
+    type: t.name,
+    score: state.scores[t.id]
+  })).sort((a, b) => b.score - a.score);
+
+  const genderLabel = state.childGender === 'girl' ? 'дівчинка' : 'хлопчик';
+  const pronoun = state.childGender === 'girl' ? 'вона' : 'він';
+  const pronounPoss = state.childGender === 'girl' ? 'її' : 'його';
+
+  const prompt = `Ти — дитячий психолог і освітній консультант. Проаналізуй результати тесту на множинний інтелект (теорія Говарда Гарднера).
+
+ДИТИНА:
+- Ім'я: ${state.childName}
+- Вік: ${state.childAge} років
+- Стать: ${genderLabel}
+- Архетип: ${state.archetype.name} (${state.archetype.desc})
+
+РЕЗУЛЬТАТИ (відсоток від максимуму):
+${sortedScores.map(s => `${s.type}: ${s.score}%`).join('\n')}
+
+Напиши детальний аналіз українською мовою. Звертайся до мами (читачки), говори про дитину у третій особі (${pronoun}, ${pronounPoss}).
+Тон: теплий, практичний, без зайвого психологічного жаргону. Мама повинна впізнати свою дитину.
+Враховуй вік ${state.childAge} років у рекомендаціях.
+
+Структура відповіді (строго в форматі JSON):
+{
+  "sections": [
+    {
+      "num": "01",
+      "title": "Як мислить ${state.childName} — образ і суть",
+      "content": "2-3 абзаци. Конкретний, живий опис способу мислення. Не перелік якостей — а образ дитини."
+    },
+    {
+      "num": "02",
+      "title": "Домінуючі типи інтелекту і як вони працюють разом",
+      "content": "Поясни 2-3 найсильніші типи та їх взаємодію. Конкретні приклади поведінки."
+    },
+    {
+      "num": "03",
+      "title": "Як ${pronounPoss} навчати — конкретні методи",
+      "content": "5-7 конкретних методів для дому і школи з урахуванням віку. Практично і реалістично.",
+      "highlight": "Найважливіший принцип навчання для цієї дитини — одним реченням"
+    },
+    {
+      "num": "04",
+      "title": "Що ${pronounPoss} демотивує і чому",
+      "content": "3-4 конкретні ситуації, які вбивають мотивацію. Пояснення через тип інтелекту."
+    },
+    {
+      "num": "05",
+      "title": "Гуртки, активності і напрями",
+      "content": "Конкретні рекомендації з урахуванням віку ${state.childAge} р. Назви гуртків, видів спорту, хобі."
+    },
+    {
+      "num": "06",
+      "title": "Як з нею розмовляти",
+      "content": "Що чує і що ігнорує. Конкретні фрази, які спрацьовують. Як ставити завдання і хвалити."
+    },
+    {
+      "num": "07",
+      "title": "Три дії для тебе цього тижня",
+      "actions": ["Дія 1 — конкретна, реалістична для цього тижня", "Дія 2 — конкретна", "Дія 3 — конкретна"]
+    }
+  ]
+}
+
+Відповідай ТІЛЬКИ валідним JSON без markdown-розмітки.`;
+
+  const response = await fetch('/api/analyze', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1000,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+
+  if (!response.ok) throw new Error('API error: ' + response.status);
+  const data = await response.json();
+  const text = data.content.map(b => b.text || '').join('').trim();
+  const clean = text.replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim();
+  return JSON.parse(clean);
+}
+
+function renderAnalysis(data) {
+  const body = document.getElementById('result-body');
+  const pronoun = state.childGender === 'girl' ? 'її' : 'його';
+
+  let html = '';
+  for (const section of data.sections) {
+    html += `<div class="result-section fade-in">
+      <p class="result-section-num">${section.num}</p>
+      <h3 class="result-section-title">${section.title}</h3>`;
+
+    if (section.actions) {
+      html += `<ul class="actions-list">`;
+      section.actions.forEach((action, i) => {
+        html += `<li class="action-item">
+          <span class="action-num">${i + 1}</span>
+          <span class="action-text">${action}</span>
+        </li>`;
+      });
+      html += `</ul>`;
+    } else {
+      const paragraphs = section.content.split('\n').filter(p => p.trim());
+      html += `<div class="result-section-body">`;
+      paragraphs.forEach(p => { html += `<p>${p}</p>`; });
+      html += `</div>`;
+
+      if (section.highlight) {
+        html += `<div class="highlight-box"><p>${section.highlight}</p></div>`;
+      }
+    }
+
+    html += `</div>`;
+  }
+
+  body.innerHTML = html;
+}
+
+function renderFallbackAnalysis() {
+  const name = state.childName;
+  const scores = state.scores;
+  const top = INTELLIGENCE_TYPES.map(t => ({ ...t, score: scores[t.id] }))
+    .sort((a, b) => b.score - a.score).slice(0, 3);
+  const pronoun = state.childGender === 'girl' ? 'вона' : 'він';
+
+  const body = document.getElementById('result-body');
+  body.innerHTML = `
+    <div class="result-section fade-in">
+      <p class="result-section-num">01</p>
+      <h3 class="result-section-title">Як мислить ${name}</h3>
+      <div class="result-section-body">
+        <p>${name} — дитина з вираженими здібностями в сферах ${top.map(t => t.name.toLowerCase()).join(', ')} інтелекту. Це формує унікальний спосіб сприйняття та обробки інформації.</p>
+        <p>Відповіді показують, що ${pronoun} особливо сильна у ${top[0].name.toLowerCase()} сфері (${top[0].score}%), що є важливим ресурсом для розвитку.</p>
+      </div>
+    </div>
+    <div class="result-section fade-in">
+      <p class="result-section-num">07</p>
+      <h3 class="result-section-title">Три дії для тебе цього тижня</h3>
+      <ul class="actions-list">
+        <li class="action-item"><span class="action-num">1</span><span class="action-text">Поспостерігай, як ${name} грається сама — що ${pronoun} обирає без підказок.</span></li>
+        <li class="action-item"><span class="action-num">2</span><span class="action-text">Запропонуй активність, пов'язану з ${top[0].name.toLowerCase()} інтелектом.</span></li>
+        <li class="action-item"><span class="action-num">3</span><span class="action-text">Поговори з ${name} про те, що їй найбільше подобається у школі — і чому.</span></li>
+      </ul>
+    </div>
+    <div class="error-banner" style="display:block;margin-top:1rem;">
+      Повний AI-аналіз недоступний (помилка з'єднання). Показано базові результати.
+    </div>`;
+}
+
+// ═══ NAVIGATION ═══════════════════════════════════════════════════════════
+
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  window.scrollTo({ top: 0 });
+}
+
+// ═══ BOOT ═════════════════════════════════════════════════════════════════
+init();
+</script>
+</body>
+</html>
