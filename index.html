@@ -859,6 +859,74 @@
 
   .btn-download:hover { background: var(--gold); color: var(--surface); }
 
+  .books-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 0.5rem;
+  }
+
+  .book-item {
+    padding: 1.1rem 1.25rem;
+    background: var(--surface-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    transition: border-color 0.2s;
+  }
+
+  .book-item:hover { border-color: var(--gold-line); }
+
+  .book-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .book-num {
+    font-family: var(--ff-serif);
+    font-size: 1rem;
+    color: var(--gold);
+    font-weight: 500;
+    line-height: 1.2;
+    flex-shrink: 0;
+    min-width: 24px;
+  }
+
+  .book-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .book-title {
+    font-family: var(--ff-serif);
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--ink);
+    font-style: italic;
+    line-height: 1.3;
+  }
+
+  .book-author {
+    font-family: var(--ff-mono);
+    font-size: 0.65rem;
+    font-weight: 400;
+    color: var(--ink-muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .book-why {
+    font-family: var(--ff-mono);
+    font-size: 0.78rem;
+    font-weight: 300;
+    color: var(--ink-soft);
+    line-height: 1.8;
+    padding-left: 2rem;
+    margin: 0;
+  }
+
   .error-banner {
     background: #fdf0f0;
     border: 1px solid rgba(192,57,43,0.2);
@@ -1495,10 +1563,42 @@ ${sortedScores.map(s => `${s.type}: ${s.score}%`).join('\n')}
       "num": "07",
       "title": "Три дії для тебе цього тижня",
       "actions": ["Дія 1 — конкретна, реалістична для цього тижня", "Дія 2 — конкретна", "Дія 3 — конкретна"]
+    },
+    {
+      "num": "08",
+      "title": "Книги і ресурси для вас",
+      "books": [
+        {
+          "title": "Назва книги українською або транслітерацією",
+          "author": "Автор",
+          "why": "1-2 речення чому саме ця книга підходить для дитини з таким типом інтелекту. Конкретно, без загальних слів."
+        }
+      ],
+      "note": "Одне речення — загальна порада щодо підходу до розвитку цієї дитини через читання або інші ресурси."
     }
   ]
 }
 
+Для розділу 08 підбери 4-5 реальних книг. ВАЖЛИВО: підбирай тільки книги з цього списку перевірених видань доступних в Україні:
+
+Загальні книги про розвиток і виховання (можна рекомендувати при будь-якому типі інтелекту):
+- "Правила розвитку мозку дитини" — Джон Медіна (є українською, nashformat.ua)
+- "Важливо, щоб ваші батьки прочитали цю книжку" — Філіппа Перрі (є українською)
+- "Я поруч. Як залученість у життя дитини впливає на її особистість" — є українською
+- "Як говорити, щоб діти слухали, і як слухати, щоб діти говорили" — Фабер і Мазліш
+- "Виховання без покарань і заохочень" — Альфі Кон
+- "Дитина в тобі має стати дорослою" — Стефані Шталь
+
+Під конкретні типи інтелекту:
+- Логіко-математичний: "Математичний гурток" — книги серії для дітей, "Думай як математик" — Барбара Оакклі
+- Лінгвістичний: "Читати — це круто" — Агнєшка Стельмашик, "Як виростити читача"
+- Просторовий / Тілесний: "Монтессорі вдома" — Симон Дав'єс, "Дитина та творчість"
+- Музичний: "Музика і мозок" — Даніель Левітін
+- Міжособистісний: "Емоційний інтелект дитини" — Джон Готтман (є українською)
+- Внутрішньоособистісний: "Виховання самостійності" — Анна Бикова ("Лінива мама")
+- Натуралістичний: "Остання дитина в лісі" — Річард Лув, книги про природу для дітей
+
+Підбирай 4 книги: 2 загальні (підходять для будь-якого батька) + 2 під домінуючі типи інтелекту конкретної дитини.
 Відповідай ТІЛЬКИ валідним JSON без markdown-розмітки. Не використовуй **зірочки** для виділення — пиши звичайний текст. Кожен пункт починай з нового рядка (\n), але без зірочок і дефісів.`;
 
   const response = await fetch('/api/analyze', {
@@ -1506,7 +1606,7 @@ ${sortedScores.map(s => `${s.type}: ${s.score}%`).join('\n')}
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       model: 'claude-sonnet-4-5-20250929',
-      max_tokens: 4000,
+      max_tokens: 5000,
       messages: [{ role: 'user', content: prompt }]
     })
   });
@@ -1528,7 +1628,25 @@ function renderAnalysis(data) {
       <p class="result-section-num">${section.num}</p>
       <h3 class="result-section-title">${section.title}</h3>`;
 
-    if (section.actions) {
+    if (section.books) {
+      html += `<div class="books-list">`;
+      section.books.forEach((book, i) => {
+        html += `<div class="book-item">
+          <div class="book-header">
+            <span class="book-num">${String(i + 1).padStart(2,'0')}</span>
+            <div class="book-meta">
+              <span class="book-title">${book.title}</span>
+              <span class="book-author">${book.author}</span>
+            </div>
+          </div>
+          <p class="book-why">${book.why}</p>
+        </div>`;
+      });
+      html += `</div>`;
+      if (section.note) {
+        html += `<div class="highlight-box" style="margin-top:1.2rem;"><p>${section.note}</p></div>`;
+      }
+    } else if (section.actions) {
       html += `<ul class="actions-list">`;
       section.actions.forEach((action, i) => {
         html += `<li class="action-item">
