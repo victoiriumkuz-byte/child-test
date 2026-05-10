@@ -1504,7 +1504,7 @@ ${sortedScores.map(s => `${s.type}: ${s.score}%`).join('\n')}
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-5',
       max_tokens: 1000,
       messages: [{ role: 'user', content: prompt }]
     })
@@ -1558,7 +1558,12 @@ function renderFallbackAnalysis() {
   const scores = state.scores;
   const top = INTELLIGENCE_TYPES.map(t => ({ ...t, score: scores[t.id] }))
     .sort((a, b) => b.score - a.score).slice(0, 3);
-  const pronoun = state.childGender === 'girl' ? 'вона' : 'він';
+  const isGirl = state.childGender === 'girl';
+  const pronoun = isGirl ? 'вона' : 'він';
+  const strongForm = isGirl ? 'сильна' : 'сильний';
+  const playsAlone = isGirl ? 'грається сама' : 'грається сам';
+  const chooses = isGirl ? 'що вона обирає' : 'що він обирає';
+  const pronounDat = isGirl ? 'їй' : 'йому';
 
   const body = document.getElementById('result-body');
   body.innerHTML = `
@@ -1567,20 +1572,20 @@ function renderFallbackAnalysis() {
       <h3 class="result-section-title">Як мислить ${name}</h3>
       <div class="result-section-body">
         <p>${name} — дитина з вираженими здібностями в сферах ${top.map(t => t.name.toLowerCase()).join(', ')} інтелекту. Це формує унікальний спосіб сприйняття та обробки інформації.</p>
-        <p>Відповіді показують, що ${pronoun} особливо сильна у ${top[0].name.toLowerCase()} сфері (${top[0].score}%), що є важливим ресурсом для розвитку.</p>
+        <p>Відповіді показують, що ${pronoun} особливо ${strongForm} у ${top[0].name.toLowerCase()} сфері (${top[0].score}%), що є важливим ресурсом для розвитку.</p>
       </div>
     </div>
     <div class="result-section fade-in">
       <p class="result-section-num">07</p>
       <h3 class="result-section-title">Три дії для тебе цього тижня</h3>
       <ul class="actions-list">
-        <li class="action-item"><span class="action-num">1</span><span class="action-text">Поспостерігай, як ${name} грається сама — що ${pronoun} обирає без підказок.</span></li>
+        <li class="action-item"><span class="action-num">1</span><span class="action-text">Поспостерігай, як ${name} ${playsAlone} — ${chooses} без підказок.</span></li>
         <li class="action-item"><span class="action-num">2</span><span class="action-text">Запропонуй активність, пов'язану з ${top[0].name.toLowerCase()} інтелектом.</span></li>
-        <li class="action-item"><span class="action-num">3</span><span class="action-text">Поговори з ${name} про те, що їй найбільше подобається у школі — і чому.</span></li>
+        <li class="action-item"><span class="action-num">3</span><span class="action-text">Поговори з ${name} про те, що ${pronounDat} найбільше подобається у школі — і чому.</span></li>
       </ul>
     </div>
-    <div class="error-banner" style="display:block;margin-top:1rem;">
-      Повний AI-аналіз недоступний (помилка з'єднання). Показано базові результати.
+    <div style="background:#fdf0f0;border:1px solid rgba(192,57,43,0.2);border-radius:4px;padding:0.8rem 1rem;margin-top:1rem;font-size:0.75rem;color:#c0392b;">
+      Відкрий файл через Vercel (або локальний сервер) — тоді з'явиться повний AI-аналіз.
     </div>`;
 }
 
